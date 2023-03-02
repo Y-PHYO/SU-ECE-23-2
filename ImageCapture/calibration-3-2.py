@@ -1,3 +1,5 @@
+# Works on RPi
+
 # Import required modules
 import cv2
 import numpy as np
