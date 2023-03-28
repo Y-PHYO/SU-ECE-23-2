@@ -1,3 +1,5 @@
+# Runs LiDAR Scanner
+
 from pyrplidar import PyRPlidar
 import time
 import numpy as np
