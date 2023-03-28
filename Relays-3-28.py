@@ -1,3 +1,4 @@
+# Turns halo light on and off
 light1 = 21
 import RPi.GPIO as GPIO
 import time
