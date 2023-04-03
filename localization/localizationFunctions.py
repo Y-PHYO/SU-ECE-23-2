@@ -3,6 +3,7 @@ import cmath
 
 
 def findGears(R1, R2, R3,d_12, d_13, known_d12, known_d13, x1_ref, y1_ref, x2_ref, y2_ref, x3_ref, y3_ref):
+    # print("Start find gears")
     if math.isclose(d_12, known_d12, rel_tol=0.1):
         # print("d12 is between the back landing gears")
         if math.isclose(d_13, known_d13, rel_tol=0.1):  # Robot is closer to  right wing
@@ -11,6 +12,8 @@ def findGears(R1, R2, R3,d_12, d_13, known_d12, known_d13, x1_ref, y1_ref, x2_re
             X2, Y2 = x2_ref, y2_ref
             X3, Y3 = x3_ref, y3_ref
             return X1, Y1, X2, Y2, X3, Y3
+        else:
+            print("distance between 1 and 3 is not matching")
     elif math.isclose(d_12, known_d13, rel_tol=0.1):
         # print("d12 is between the front and back landing gears")
         if math.isclose(d_13, known_d12, rel_tol=0.1):  # Robot closer to left wing
@@ -179,12 +182,16 @@ def solveCircles(r1, r2, angle, X1, Y1, X2, Y2):
 def assignGears(x1_ref, y1_ref, x2_ref, y2_ref, x3_ref, y3_ref, r1, r2, r3, theta12, theta13):
     knownD12 = distance(x1_ref, y1_ref, x2_ref, y2_ref)  # back landing gears
     knownD13 = distance(x1_ref, y1_ref, x3_ref, y3_ref)  # front to back landing gears
+    knownD12 = round(knownD12, 4)
     knownD13 = round(knownD13, 4)
 
-    # print("Distance 1 to 2: {0}\nDistance 1 to 3: {1}\n".format(knownD12, knownD13))
+    # print("Known Distance 1 to 2: {0}\nKnown Distance 1 to 3: {1}\n".format(knownD12, knownD13))
 
     d12 = lawOfCosines(r1, r2, theta12)
     d13 = lawOfCosines(r1, r3, theta13)
+
+    print("Calculated D12 Cosine: {0}\nKnown D12 distance: {1}\n".format(d12, knownD12))
+    print("Calculated D13 Cosine: {0}\nKnown D13 distance: {1}\n".format(d13, knownD13))
 
     x1, y1, x2, y2, x3, y3 = findGears(r1, r2,r3, d12, d13, knownD12, knownD13, x1_ref, y1_ref, x2_ref, y2_ref, x3_ref, y3_ref)
 
@@ -204,7 +211,76 @@ def comparePoints(X1, Y1, X2, Y2, X3, Y3, X4, Y4):
         print("No matches were found")
 
 
-def functionName(r1, r2, r3, x_1, y_1, x_2, y_2, x_3, y_3, angle12, angle13):
+def orderValues(fr, fa, sr, sa, tr, ta):
+    distances = [fr, sr, tr]
+    angle = [fa, sa, ta]
+
+    maxD = max(fr, sr, tr)
+
+    for i in range(0, len(distances)):
+        if distances[0] == distances[1] or distances[0] == distances[2] or distances[1] == distances[2]:
+            firstR = distances[0]
+            firstA = angle[0]
+            secondR = distances[1]
+            secondA = angle[1]
+            thirdR = distances[2]
+            thirdA = angle[2]
+        else:
+            if maxD == distances[i]:
+                if i == 0:
+                    firstR = distances[2]
+                    firstA = angle[2]
+                    secondR = distances[0]
+                    secondA = angle[0]
+                    thirdR = distances[1]
+                    thirdA = angle[1]
+                elif i == 2:
+                    firstR = distances[1]
+                    firstA = angle[1]
+                    secondR = distances[2]
+                    secondA = angle[2]
+                    thirdR = distances[0]
+                    thirdA = angle[0]
+                else:
+                    firstR = distances[0]
+                    firstA = angle[0]
+                    secondR = distances[1]
+                    secondA = angle[1]
+                    thirdR = distances[2]
+                    thirdA = angle[2]
+
+    print(f'\nR1: {firstR} A1: {firstA}\nR2: {secondR} A2: {secondA}\nR3: {thirdR} A3: {thirdA}')
+
+    return firstR, firstA, secondR, secondA, thirdR, thirdA
+
+def finalFunction(firstR, firstA, secondR, secondA, thirdR, thirdA, x_1, y_1, x_2, y_2, x_3, y_3):
+
+    r1_, a1_, r2_, a2_, r3_, a3_ = orderValues(firstR, firstA, secondR, secondA, thirdR, thirdA)
+
+    # From left to right order of the landing gears is r2, r1, r3 (1st = r2, 2nd = r1, 3rd = r3)
+    r1 = r2_
+    r2 = r1_
+    r3 = r3_
+
+    a1 = a2_
+    a2 = a1_
+    a3 = a3_
+
+    print(f'\nr1: {r1} a1: {a1}')
+    print(f'r2: {r2} a2: {a2}')
+    print(f'r3: {r3} a3: {a3}')
+
+    angle12 = abs(a1 - a2)
+    angle13 = abs(a1 - a3)
+
+    # if angle12 > 180:
+    #     angle12 = 360-angle12
+    #
+    # if angle13 > 180:
+    #     angle13 = 360-angle13
+
+    print(f'\nAngle12: {angle12}')
+    print(f'Angle13: {angle13}')
 
     theta12 = degtorad(angle12)
     theta13 = degtorad(angle13)
